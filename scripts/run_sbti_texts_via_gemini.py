@@ -22,11 +22,13 @@ SECTION_ORDER = [
     "questions",
     "specialQuestions",
     "typeLibrary",
+    "compatibilityText",
     "dimExplanations",
 ]
 SECTION_BATCH_SIZES = {
     "questions": 6,
     "typeLibrary": 4,
+    "compatibilityText": 10,
 }
 MAX_RETRIES = 2
 RETRY_BASE_DELAY_SECONDS = 2.0
@@ -459,7 +461,7 @@ class GeminiClient:
                     google_search=types.GoogleSearch(
                         time_range_filter=types.Interval(
                             start_time=dt.datetime(2025, 1, 1, tzinfo=dt.timezone.utc),
-                            end_time=dt.datetime.now(dt.timezone.utc),
+                            end_time=dt.datetime.now(dt.timezone.utc).replace(microsecond=0),
                         )
                     )
                 )
