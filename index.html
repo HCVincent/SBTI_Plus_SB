@@ -781,6 +781,160 @@
       .dim-grid,
       .score-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── Browse card images ── */
+    .catalog-card {
+      cursor: pointer;
+      transition: border-color .16s ease, transform .16s ease;
+    }
+    .catalog-card:hover {
+      border-color: #bcd0c1;
+      transform: translateY(-2px);
+    }
+    .catalog-card-img {
+      width: 100%;
+      height: 160px;
+      object-fit: contain;
+      border-radius: 14px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    /* ── Detail page: sidebar + content ── */
+    .detail-layout {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+    .detail-sidebar {
+      position: sticky;
+      top: 24px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #ffffff, #fbfdfb);
+    }
+    .detail-sidebar h3 {
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: .06em;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+    .detail-nav {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 4px;
+    }
+    .detail-nav a {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-decoration: none;
+      transition: background .16s ease, color .16s ease;
+      border: 1px solid transparent;
+    }
+    .detail-nav a:hover { background: var(--soft); color: var(--text); }
+    .detail-nav a.active {
+      background: var(--soft);
+      color: var(--accent-strong);
+      border-color: var(--line);
+    }
+    .detail-content { min-width: 0; }
+
+    /* ── Mobile pill nav ── */
+    .detail-pills {
+      display: none;
+      gap: 8px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 12px 0;
+      position: sticky;
+      top: 0;
+      background: var(--panel);
+      z-index: 10;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 18px;
+    }
+    .detail-pills a {
+      white-space: nowrap;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      transition: all .16s ease;
+      flex-shrink: 0;
+    }
+    .detail-pills a.active {
+      background: var(--accent-strong);
+      color: #fff;
+      border-color: var(--accent-strong);
+    }
+
+    /* ── Relationship sections ── */
+    .relation-section {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 24px;
+      background: linear-gradient(180deg, #ffffff, #fbfdfb);
+    }
+    .relation-section h2 {
+      font-size: 20px;
+      letter-spacing: .04em;
+      color: var(--accent-strong);
+      margin-bottom: 16px;
+    }
+    .relation-lead {
+      font-size: 15px;
+      line-height: 1.9;
+      color: #304034;
+      margin: 0 0 18px;
+    }
+    .relation-callout {
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      border-radius: 0 14px 14px 0;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--text);
+      font-weight: 600;
+    }
+    .relation-sub h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    .relation-sub p {
+      font-size: 14px;
+      line-height: 1.85;
+      color: #304034;
+      margin: 0;
+    }
+    .relation-sub + .relation-sub { margin-top: 20px; }
+
+    .section-anchor { scroll-margin-top: 24px; }
+
+    @media (max-width: 860px) {
+      .detail-layout { grid-template-columns: 1fr; }
+      .detail-sidebar { display: none; }
+      .detail-pills { display: flex; }
+      .catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 600px) {
+      .catalog-grid { grid-template-columns: 1fr; }
+      .catalog-card-img { height: 120px; }
+    }
   </style>
 </head>
 <body>
@@ -857,47 +1011,76 @@
     
     <section id="result" class="screen">
       <div class="result-wrap card">
-        <div class="result-layout">
-          <div class="result-top">
-            <div class="poster-box" id="posterBox">
-              <img id="posterImage" class="poster-image" alt="" />
-              <div id="posterCaption" class="poster-caption"></div>
-            </div>
-
-            <div class="type-box">
-              <div class="type-kicker" id="resultModeKicker"></div>
-              <div class="type-name" id="resultTypeName"></div>
-              <div class="match" id="matchBadge"></div>
-              <div class="type-subname" id="resultTypeSub"></div>
-            </div>
-          </div>
-
-          <div class="analysis-box" id="analysisBox">
-            <h3 id="analysisTitle"></h3>
-            <p id="resultDesc"></p>
-          </div>
-
-          <div class="dim-box" id="dimBox">
-            <h3 id="dimTitle"></h3>
-            <div id="dimList" class="dim-list"></div>
-          </div>
-
-          <div class="note-box" id="noteBox">
-            <h3 id="noteTitle"></h3>
-            <p id="funNote"></p>
-          </div>
-
-                    <details class="author-box">
-            <summary id="authorSummary"></summary>
-            <div class="author-content" id="authorContent"></div>
-          </details>
+        <div class="detail-pills" id="detailPills">
+          <a href="#section-intro" class="active" data-section="section-intro"></a>
+          <a href="#section-romantic" data-section="section-romantic"></a>
+          <a href="#section-friends" data-section="section-friends"></a>
         </div>
 
-        <div class="result-actions">
-          <div style="display:flex; gap:12px; flex-wrap:wrap;">
-            <button id="restartBtn" class="btn-secondary"></button>
-            <button id="resultBrowseBtn" class="btn-secondary"></button>
-            <button id="toTopBtn" class="btn-primary"></button>
+        <div class="detail-layout">
+          <aside class="detail-sidebar" id="detailSidebar">
+            <h3 id="detailNavTitle"></h3>
+            <nav>
+              <ul class="detail-nav" id="detailNav">
+                <li><a href="#section-intro" class="active" data-section="section-intro"></a></li>
+                <li><a href="#section-romantic" data-section="section-romantic"></a></li>
+                <li><a href="#section-friends" data-section="section-friends"></a></li>
+              </ul>
+            </nav>
+          </aside>
+
+          <div class="detail-content">
+            <div class="result-layout">
+              <div id="section-intro" class="section-anchor">
+                <div class="result-top">
+                  <div class="poster-box" id="posterBox">
+                    <img id="posterImage" class="poster-image" alt="" />
+                    <div id="posterCaption" class="poster-caption"></div>
+                  </div>
+                  <div class="type-box">
+                    <div class="type-kicker" id="resultModeKicker"></div>
+                    <div class="type-name" id="resultTypeName"></div>
+                    <div class="match" id="matchBadge"></div>
+                    <div class="type-subname" id="resultTypeSub"></div>
+                  </div>
+                </div>
+                <div class="analysis-box" id="analysisBox">
+                  <h3 id="analysisTitle"></h3>
+                  <p id="resultDesc"></p>
+                </div>
+              </div>
+
+              <div class="dim-box" id="dimBox">
+                <h3 id="dimTitle"></h3>
+                <div id="dimList" class="dim-list"></div>
+              </div>
+
+              <div id="section-romantic" class="section-anchor">
+                <div class="relation-section" id="romanticSection"></div>
+              </div>
+
+              <div id="section-friends" class="section-anchor">
+                <div class="relation-section" id="friendsSection"></div>
+              </div>
+
+              <div class="note-box" id="noteBox">
+                <h3 id="noteTitle"></h3>
+                <p id="funNote"></p>
+              </div>
+
+              <details class="author-box">
+                <summary id="authorSummary"></summary>
+                <div class="author-content" id="authorContent"></div>
+              </details>
+            </div>
+
+            <div class="result-actions">
+              <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <button id="restartBtn" class="btn-secondary"></button>
+                <button id="resultBrowseBtn" class="btn-secondary"></button>
+                <button id="toTopBtn" class="btn-primary"></button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1137,6 +1320,16 @@
       document.documentElement.style.setProperty('--author-summary-expand', `"${uiText.result.authorExpand}"`);
       document.documentElement.style.setProperty('--author-summary-collapse', `"${uiText.result.authorCollapse}"`);
       authorContent.innerHTML = uiText.result.authorParagraphs.map(text => `<p>${text}</p>`).join('');
+
+      const detailUI = uiText.detail || {};
+      const navTitle = isPlaceholder(detailUI.navTitle) ? 'Explore' : detailUI.navTitle;
+      document.getElementById('detailNavTitle').textContent = navTitle;
+      const navIntro = detailUI.navIntro || 'Introduction';
+      const navRomantic = detailUI.navRomantic || 'ROMANTIC RELATIONSHIPS';
+      const navFriends = detailUI.navFriendships || 'FRIENDSHIPS';
+      document.querySelectorAll('[data-section="section-intro"]').forEach(a => a.textContent = navIntro);
+      document.querySelectorAll('[data-section="section-romantic"]').forEach(a => a.textContent = navRomantic);
+      document.querySelectorAll('[data-section="section-friends"]').forEach(a => a.textContent = navFriends);
     }
 
     function showScreen(name) {
@@ -1172,21 +1365,27 @@
     function renderCatalogGrid(container, codes) {
       container.innerHTML = codes.map((code) => {
         const type = TYPE_LIBRARY[code];
+        const imgSrc = TYPE_IMAGES[code];
+        const imgHtml = imgSrc
+          ? `<img class="catalog-card-img" src="${imgSrc}" alt="${type.code}" onerror="this.style.display='none'" />`
+          : '';
         return `
-          <article class="catalog-card">
+          <article class="catalog-card" data-browse-code="${type.code}">
+            ${imgHtml}
             <div class="catalog-code">${type.code}</div>
             <div class="catalog-name">${type.cn}</div>
             <div class="catalog-intro">${type.intro}</div>
             <div class="catalog-foot">
-              <button class="btn-secondary" data-type-code="${type.code}">${uiText.browse.cardAction}</button>
+              <span></span>
+              <button class="btn-secondary">${uiText.browse.cardAction}</button>
             </div>
           </article>
         `;
       }).join('');
 
-      container.querySelectorAll('[data-type-code]').forEach((button) => {
-        button.addEventListener('click', () => {
-          openTypeDetail(button.dataset.typeCode);
+      container.querySelectorAll('[data-browse-code]').forEach((card) => {
+        card.addEventListener('click', () => {
+          openTypeDetail(card.dataset.browseCode);
         });
       });
     }
@@ -1379,6 +1578,89 @@
         : uiText.buttons.browseAll;
     }
 
+    function isPlaceholder(text) {
+      return !text || String(text).trim().startsWith('__GEMINI__');
+    }
+
+    function renderRelationSection(container, data) {
+      const wrapper = container.parentElement;
+      if (!data || !data.title || isPlaceholder(data.lead)) {
+        wrapper.classList.add('is-hidden');
+        container.innerHTML = '';
+        return false;
+      }
+      wrapper.classList.remove('is-hidden');
+      container.innerHTML = `
+        <h2>${data.title}</h2>
+        <p class="relation-lead">${data.lead}</p>
+        ${data.callout && !isPlaceholder(data.callout) ? `<div class="relation-callout">${data.callout}</div>` : ''}
+        ${(data.sections || []).filter(s => !isPlaceholder(s.body)).map(s => `
+          <div class="relation-sub">
+            <h3>${s.heading}</h3>
+            <p>${s.body}</p>
+          </div>
+        `).join('')}
+      `;
+      return true;
+    }
+
+    function updateDetailNav(hasRomantic, hasFriends) {
+      const sectionCount = 1 + (hasRomantic ? 1 : 0) + (hasFriends ? 1 : 0);
+      document.getElementById('detailSidebar').classList.toggle('is-hidden', sectionCount <= 1);
+      const pills = document.getElementById('detailPills');
+      pills.classList.toggle('is-hidden', sectionCount <= 1);
+
+      document.querySelectorAll('[data-section="section-romantic"]').forEach(el => {
+        el.style.display = hasRomantic ? '' : 'none';
+      });
+      document.querySelectorAll('[data-section="section-friends"]').forEach(el => {
+        el.style.display = hasFriends ? '' : 'none';
+      });
+
+      document.querySelectorAll('.detail-nav a, .detail-pills a').forEach(a => {
+        a.classList.remove('active');
+      });
+      document.querySelectorAll('[data-section="section-intro"]').forEach(a => {
+        a.classList.add('active');
+      });
+    }
+
+    let detailObserver = null;
+    function setupDetailNavObserver() {
+      if (detailObserver) detailObserver.disconnect();
+
+      const sectionIds = ['section-intro', 'section-romantic', 'section-friends'];
+      const allNavLinks = document.querySelectorAll('.detail-nav a, .detail-pills a');
+
+      detailObserver = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const targetId = entry.target.id;
+            allNavLinks.forEach(link => {
+              link.classList.toggle('active', link.dataset.section === targetId);
+            });
+            break;
+          }
+        }
+      }, { rootMargin: '-10% 0px -70% 0px' });
+
+      sectionIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && !el.classList.contains('is-hidden')) {
+          detailObserver.observe(el);
+        }
+      });
+
+      allNavLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetId = link.dataset.section;
+          const target = document.getElementById(targetId);
+          if (target) target.scrollIntoView({ behavior: 'smooth' });
+        });
+      });
+    }
+
     function renderTypeDetail({ type, modeKicker, badge, sub, note, showMatch, showDims, result, mode }) {
       setResultMode(mode);
 
@@ -1409,7 +1691,19 @@
       } else {
         document.getElementById('dimList').innerHTML = '';
       }
+
+      const hasRomantic = renderRelationSection(
+        document.getElementById('romanticSection'),
+        type.romanticRelationships
+      );
+      const hasFriends = renderRelationSection(
+        document.getElementById('friendsSection'),
+        type.friendships
+      );
+      updateDetailNav(hasRomantic, hasFriends);
+
       showScreen('result');
+      requestAnimationFrame(() => setupDetailNavObserver());
     }
 
     function renderResult(source = 'test') {
