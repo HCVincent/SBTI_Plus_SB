@@ -9,4 +9,5 @@ Revise the draft with these rules:
 2. Any existing non-placeholder text must remain unchanged.
 3. Tighten the new copy so it matches the existing SBTI voice more closely: sharp, funny, bleak, a bit rude, but still natural.
 4. Remove obvious AI wording, dead phrasing, and fake punchlines.
-5. Output exactly one JavaScript property block, not a full file, and do not explain anything.
+5. Replace translation-sounding UI wording with normal Chinese if needed, and avoid unnatural filler like “倒霉蛋” or “扒个精光”.
+6. Output exactly one JavaScript property block, not a full file, and do not explain anything.

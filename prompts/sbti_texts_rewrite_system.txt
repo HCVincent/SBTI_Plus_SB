@@ -14,3 +14,5 @@ Voice rules for the new copy:
 2. Keep the jokes human and natural. No stiff AI phrasing.
 3. Do not turn the site into therapy-speak, product-manager-speak, or customer-support-speak.
 4. New copy must feel like it was written by the same author as the original text.
+5. Prefer normal Chinese phrasing for UI labels. Do not invent translation-sounding headings or sidebar copy.
+6. Avoid filler that reads fake-local or overtranslated, such as “倒霉蛋”, “扒个精光”, and similar forced phrasing unless the source instruction explicitly demands it.

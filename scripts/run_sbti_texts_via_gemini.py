@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import os
 import re
 import sys
@@ -420,9 +421,10 @@ def validate_section_output(*, section_name: str, text: str) -> str:
 
 
 class GeminiClient:
-    def __init__(self, *, api_key: str, model_name: str) -> None:
+    def __init__(self, *, api_key: str, model_name: str, use_google_search: bool = False) -> None:
         self._api_key = api_key
         self._model_name = model_name
+        self._use_google_search = use_google_search
         self._client = None
         self._lock = threading.Lock()
 
@@ -445,12 +447,31 @@ class GeminiClient:
         if "ok" not in text:
             raise RuntimeError(f"Gemini preflight failed for model {self._model_name}: {text[:200]}")
 
+    def _build_config(self, *, system_prompt: str | None = None):
+        from google.genai import types
+
+        kwargs: dict[str, Any] = {}
+        if system_prompt:
+            kwargs["system_instruction"] = system_prompt
+        if self._use_google_search:
+            kwargs["tools"] = [
+                types.Tool(
+                    google_search=types.GoogleSearch(
+                        time_range_filter=types.Interval(
+                            start_time=dt.datetime(2025, 1, 1, tzinfo=dt.timezone.utc),
+                            end_time=dt.datetime.now(dt.timezone.utc),
+                        )
+                    )
+                )
+            ]
+        return types.GenerateContentConfig(**kwargs)
+
     def generate_text(self, *, system_prompt: str, user_prompt: str) -> str:
         client = self._ensure_client()
         response = client.models.generate_content(
             model=self._model_name,
             contents=user_prompt,
-            config={"system_instruction": system_prompt},
+            config=self._build_config(system_prompt=system_prompt),
         )
         text = extract_text_from_response(response)
         if not text:
@@ -492,10 +513,12 @@ def build_section_draft_prompt_v2(
     source_block: str,
     placeholder_token: str,
     batch_note: str = "",
+    trend_note: str = "",
 ) -> str:
     note = batch_note or (
         "Only replace placeholder string values in this block. Do not add, remove, reorder, or merge entries."
     )
+    extra_note = f"9. {trend_note}\n" if trend_note else ""
     return (
         f"Fill only the new-copy placeholders inside the `{section_name}` section of this SBTI text resource.\n"
         "Requirements:\n"
@@ -506,7 +529,8 @@ def build_section_draft_prompt_v2(
         "5. Each placeholder string may contain a short instruction after the token. Use it to write the final user-facing Chinese copy.\n"
         "6. Output exactly one JavaScript property block starting with the original section name.\n"
         "7. Do not output a full file. Do not output Markdown fences. Do not explain anything.\n"
-        f"8. {note}\n\n"
+        f"8. {note}\n"
+        f"{extra_note}\n"
         "Source block:\n"
         f"{source_block}"
     )
@@ -520,17 +544,20 @@ def build_section_rewrite_prompt_v2(
     rewrite_template: str,
     placeholder_token: str,
     batch_note: str = "",
+    trend_note: str = "",
 ) -> str:
     note = batch_note or (
         "Only replace placeholder string values in this block. Do not add, remove, reorder, or merge entries."
     )
     prompt = rewrite_template.replace("{source_text}", source_block).replace("{draft_text}", draft_block)
+    extra_note = f"{trend_note}\n" if trend_note else ""
     return (
         f"You may only work on the `{section_name}` section.\n"
         f"Only placeholder string values containing `{placeholder_token}` may change.\n"
         "All existing non-placeholder strings are locked and must remain unchanged.\n"
         "Output exactly one JavaScript property block starting with the original section name.\n"
         "Do not output a full file. Do not explain anything.\n"
+        f"{extra_note}"
         f"{note}\n\n"
         f"{prompt}"
     )
@@ -549,7 +576,7 @@ def call_with_retries(*, label: str, fn):
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Fill new SBTI placeholder texts via Gemini.")
+    parser = argparse.ArgumentParser(description="Fill new SBTI placeholder texts via Gemini and publish them to the frontend source.")
     parser.add_argument(
         "--input",
         default=str(PROJECT_ROOT / "data" / "sbti-texts.js"),
@@ -585,6 +612,16 @@ def main() -> int:
         default=DEFAULT_PLACEHOLDER_TOKEN,
         help="Only string values containing this token will be sent to Gemini for filling.",
     )
+    parser.add_argument(
+        "--no-publish",
+        action="store_true",
+        help="Only write the generated candidate file and do not sync it back to the frontend source file.",
+    )
+    parser.add_argument(
+        "--ground-with-search",
+        action="store_true",
+        help="Allow Gemini to use Google Search grounding for placeholder copy so new UI text can avoid stale wording and misuse of current slang.",
+    )
     args = parser.parse_args()
 
     load_local_env(PROJECT_ROOT / ".env")
@@ -593,6 +630,7 @@ def main() -> int:
     output_path = Path(args.output)
     system_prompt_path = Path(args.system_prompt)
     rewrite_prompt_path = Path(args.rewrite_prompt)
+    publish_enabled = not args.no_publish
 
     if not input_path.exists():
         raise RuntimeError(f"Input file not found: {input_path}")
@@ -624,15 +662,33 @@ def main() -> int:
 
     if placeholder_batches == 0:
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_bytes(input_path.read_bytes())
-        print(
-            f"No placeholder token {placeholder_token!r} found. "
-            f"Copied input unchanged to: {output_path}"
-        )
+        input_bytes = input_path.read_bytes()
+        if output_path.resolve() != input_path.resolve():
+            output_path.write_bytes(input_bytes)
+            print(
+                f"No placeholder token {placeholder_token!r} found. "
+                f"Copied input unchanged to candidate: {output_path}"
+            )
+        else:
+            output_path.write_bytes(input_bytes)
+        if publish_enabled:
+            print(f"No placeholder token {placeholder_token!r} found. Frontend source already unchanged: {input_path}")
         return 0
 
     api_key = ensure_api_key()
-    client = GeminiClient(api_key=api_key, model_name=model_name)
+    client = GeminiClient(
+        api_key=api_key,
+        model_name=model_name,
+        use_google_search=args.ground_with_search,
+    )
+    trend_note = ""
+    if args.ground_with_search:
+        trend_note = (
+            "Before writing, use Google Search to sample 2025-2026 Chinese internet hot phrases, rotten memes, "
+            "and common slang. Use that research only to avoid fake-Chinese AI wording and awkward translationese. "
+            "Do not stuff trend words into every line, and do not use uncommon filler like 倒霉蛋 or 扒个精光 "
+            "when a normal Chinese phrase reads cleaner."
+        )
     print(f"[preflight] model={model_name}")
     client.preflight()
     print("[preflight] ok")
@@ -664,6 +720,7 @@ def main() -> int:
                 source_block=source_block,
                 placeholder_token=placeholder_token,
                 batch_note=batch_note,
+                trend_note=trend_note,
             )
             draft_block = call_with_retries(
                 label=f"{section_name}{batch_suffix} draft",
@@ -692,6 +749,7 @@ def main() -> int:
                 rewrite_template=rewrite_template,
                 placeholder_token=placeholder_token,
                 batch_note=batch_note,
+                trend_note=trend_note,
             )
             final_block = call_with_retries(
                 label=f"{section_name}{batch_suffix} polish",
@@ -718,6 +776,14 @@ def main() -> int:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(final_text, encoding="utf-8")
     print(f"Wrote Gemini candidate to: {output_path}")
+    if publish_enabled:
+        input_path.write_text(final_text, encoding="utf-8")
+        if output_path.resolve() == input_path.resolve():
+            print(f"Published Gemini text to frontend source: {input_path}")
+        else:
+            print(f"Published Gemini text to frontend source: {input_path}")
+    else:
+        print("Skipped publishing back to frontend source (--no-publish).")
     print(f"Model: {model_name}")
     return 0
 

@@ -49,6 +49,25 @@ browseAll: '__GEMINI__: 首页按钮文案，意思是浏览所有人格，短�
 python scripts/run_sbti_texts_via_gemini.py
 ```
 
+默认行为：
+
+- 先生成候选稿到 `data/sbti-texts.gemini.js`
+- 再自动同步到前端正在加载的 `data/sbti-texts.js`
+
+如果你只想看候选稿，不想直接发到前端：
+
+```bash
+python scripts/run_sbti_texts_via_gemini.py --no-publish
+```
+
+如果你只想让 Gemini 在填“新增占位符文案”时，顺手参考 2025-2026 的中文互联网说法，避免写出翻译腔和假热梗，可以额外带：
+
+```bash
+python scripts/run_sbti_texts_via_gemini.py --ground-with-search
+```
+
+这个开关不会去碰原始旧文案，也不会默认全站重写；它只在占位符新文案生成时生效。
+
 默认输入：
 
 - `data/sbti-texts.js`

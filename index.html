@@ -29,7 +29,7 @@
     }
 
     .shell {
-      max-width: 980px;
+      max-width: 1280px;
       margin: 0 auto;
       padding: 24px 16px 56px;
     }
@@ -302,98 +302,330 @@
       line-height: 1.7;
     }
 
+    .browse-wrap {
+      padding: 0;
+      overflow: hidden;
+      background: linear-gradient(180deg, #ffffff, #fbfdfb);
+    }
+
     .browse-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       gap: 16px;
       flex-wrap: wrap;
+      padding: 34px 34px 18px;
     }
 
     .browse-header h2 {
-      font-size: clamp(28px, 4vw, 40px);
-      line-height: 1.1;
-      letter-spacing: -0.03em;
+      font-size: clamp(34px, 4.8vw, 58px);
+      line-height: 0.98;
+      letter-spacing: -0.05em;
+      max-width: 9ch;
     }
 
     .browse-sub {
-      margin-top: 12px;
+      margin-top: 14px;
       color: var(--muted);
-      font-size: 14px;
-      line-height: 1.8;
-      max-width: 720px;
+      font-size: 15px;
+      line-height: 1.85;
+      max-width: 760px;
     }
 
-    .catalog-section {
+    .browse-overview {
+      padding: 0 34px 28px;
+      max-width: 860px;
+    }
+
+    .browse-overview-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--soft);
+      color: var(--accent-strong);
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .browse-overview p {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.85;
+    }
+
+    .catalog-bands {
+      display: grid;
+    }
+
+    .catalog-band {
+      position: relative;
+      overflow: hidden;
+      padding: 56px 34px 42px;
+      min-height: 420px;
+      isolation: isolate;
+    }
+
+    .catalog-band + .catalog-band {
+      border-top: 1px solid rgba(48, 64, 52, 0.08);
+    }
+
+    .catalog-band-watermark {
+      position: absolute;
+      left: 30px;
+      top: 18px;
+      font-size: clamp(72px, 14vw, 180px);
+      line-height: 0.82;
+      letter-spacing: -0.08em;
+      font-weight: 900;
+      color: rgba(255, 255, 255, 0.72);
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+    }
+
+    .catalog-band-head,
+    .catalog-band-grid {
+      position: relative;
+      z-index: 1;
+    }
+
+    .catalog-band-head {
+      max-width: 480px;
+    }
+
+    .catalog-band-kicker {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.42);
+      border: 1px solid rgba(48, 64, 52, 0.1);
+      color: rgba(36, 48, 40, 0.78);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      backdrop-filter: blur(12px);
+    }
+
+    .catalog-band-head h3 {
+      margin-top: 14px;
+      font-size: clamp(34px, 4.5vw, 62px);
+      line-height: 0.94;
+      letter-spacing: -0.05em;
+    }
+
+    .catalog-band-head p {
+      margin-top: 14px;
+      color: rgba(34, 47, 39, 0.8);
+      font-size: 15px;
+      line-height: 1.85;
+      max-width: 34ch;
+    }
+
+    .catalog-band-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 18px;
+      align-items: end;
+      margin-top: 30px;
+    }
+
+    .catalog-band--plum {
+      background: linear-gradient(180deg, #eadff0 0%, #e4d8ed 100%);
+    }
+
+    .catalog-band--mint {
+      background: linear-gradient(180deg, #daf0ea 0%, #d2ebe3 100%);
+    }
+
+    .catalog-band--peach {
+      background: linear-gradient(180deg, #f5e4d7 0%, #f0dccf 100%);
+    }
+
+    .catalog-band--sky {
+      background: linear-gradient(180deg, #dcecf6 0%, #d4e7f2 100%);
+    }
+
+    .catalog-band--sage {
+      background: linear-gradient(180deg, #e7eedf 0%, #dde8d4 100%);
+    }
+
+    .band-type {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      justify-items: center;
+      text-align: center;
+      padding: 16px 12px 20px;
+      border-radius: 24px;
+      cursor: pointer;
+      transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+      min-height: 100%;
+    }
+
+    .band-type:hover {
+      transform: translateY(-6px);
+      background: rgba(255, 255, 255, 0.24);
+      box-shadow: 0 16px 36px rgba(48, 64, 52, 0.12);
+    }
+
+    .band-figure {
+      width: min(180px, 100%);
+      min-height: 214px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: 26px;
+    }
+
+    .band-figure img {
+      width: 124%;
+      height: 100%;
+      max-height: none;
+      object-fit: cover;
+      object-position: center 78%;
+      transform: translateY(12px);
+      mix-blend-mode: multiply;
+      filter: drop-shadow(0 14px 24px rgba(48, 64, 52, 0.18));
+    }
+
+    .band-name {
+      font-size: 28px;
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+    }
+
+    .band-code {
+      color: rgba(34, 47, 39, 0.72);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+
+    .band-intro {
+      max-width: 18ch;
+      color: rgba(34, 47, 39, 0.74);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .catalog-easter-shell {
+      padding: 34px;
+      background: linear-gradient(180deg, #243128 0%, #2e3c31 100%);
+      color: #f4f8f4;
+    }
+
+    .catalog-easter-head {
+      max-width: 640px;
+      position: relative;
+    }
+
+    .catalog-easter-watermark {
+      position: absolute;
+      right: -10px;
+      top: -18px;
+      font-size: clamp(54px, 12vw, 128px);
+      line-height: 0.82;
+      letter-spacing: -0.08em;
+      font-weight: 900;
+      color: rgba(255, 255, 255, 0.08);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .catalog-easter-head h3 {
+      font-size: clamp(30px, 4vw, 44px);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .catalog-easter-head p {
+      margin-top: 14px;
+      color: rgba(244, 248, 244, 0.76);
+      font-size: 15px;
+      line-height: 1.85;
+      position: relative;
+      z-index: 1;
+    }
+
+    .catalog-easter-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
       margin-top: 24px;
     }
 
-    .catalog-section h3 {
-      font-size: 18px;
-      margin-bottom: 8px;
-    }
-
-    .catalog-section p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.8;
-    }
-
-    .catalog-grid {
+    .catalog-easter-card {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 16px;
-    }
-
-    .catalog-card {
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 16px;
-      background: linear-gradient(180deg, #ffffff, #fbfdfb);
-      display: grid;
-      gap: 12px;
-      min-height: 220px;
-    }
-
-    .catalog-code {
-      display: inline-flex;
+      grid-template-columns: minmax(120px, 170px) 1fr;
+      gap: 18px;
       align-items: center;
-      width: fit-content;
-      border-radius: 999px;
-      padding: 6px 10px;
+      padding: 20px;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.04));
+      cursor: pointer;
+      transition: transform .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .catalog-easter-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 255, 255, 0.18);
+      background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.07));
+    }
+
+    .catalog-easter-figure {
+      min-height: 180px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: 22px;
+    }
+
+    .catalog-easter-figure img {
+      width: 128%;
+      height: 100%;
+      max-height: none;
+      object-fit: cover;
+      object-position: center 78%;
+      transform: translateY(10px);
+      mix-blend-mode: multiply;
+      filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.26));
+    }
+
+    .catalog-easter-copy h4 {
+      font-size: clamp(28px, 4vw, 40px);
+      line-height: 0.96;
+      letter-spacing: -0.05em;
+    }
+
+    .catalog-easter-code {
+      display: inline-flex;
+      margin-bottom: 10px;
+      color: rgba(244, 248, 244, 0.72);
       font-size: 12px;
       font-weight: 800;
-      color: var(--accent-strong);
-      background: var(--soft);
-      border: 1px solid var(--line);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
     }
 
-    .catalog-name {
-      font-size: 22px;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-    }
-
-    .catalog-intro {
-      color: #304034;
+    .catalog-easter-copy p {
+      margin-top: 12px;
+      color: rgba(244, 248, 244, 0.78);
       font-size: 14px;
       line-height: 1.8;
-    }
-
-    .catalog-foot {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 10px;
-      margin-top: auto;
-    }
-
-    .catalog-foot span {
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.6;
+      max-width: 28ch;
     }
 
     .is-hidden {
@@ -563,12 +795,23 @@
     
     .result-layout {
       display: grid;
+      gap: 24px;
+      grid-template-columns: minmax(0, 1fr);
+      width: 100%;
+    }
+    .result-layout > * {
+      min-width: 0;
+      justify-self: stretch;
+    }
+    #section-intro {
+      display: grid;
       gap: 18px;
+      min-width: 0;
     }
     .result-top {
       display: grid;
-      grid-template-columns: 0.9fr 1.1fr;
-      gap: 18px;
+      grid-template-columns: minmax(300px, 0.86fr) minmax(0, 1.14fr);
+      gap: 24px;
       align-items: stretch;
     }
     .poster-box, .type-box, .analysis-box, .dim-box, .note-box {
@@ -579,8 +822,8 @@
     }
         .poster-box {
       display: grid;
-      grid-template-rows: 1fr auto;
-      min-height: 280px;
+      grid-template-rows: minmax(260px, 1fr) auto;
+      min-height: 420px;
       overflow: hidden;
       position: relative;
       background:
@@ -600,8 +843,9 @@
     }
     .poster-image {
       width: 100%;
-      min-height: 220px;
-      max-height: 460px;
+      min-height: 280px;
+      max-height: 520px;
+      height: 100%;
       object-fit: contain;
       border-radius: 18px;
       background: rgba(255,255,255,0.75);
@@ -635,6 +879,12 @@
       color: var(--muted);
       font-size: 14px;
       line-height: 1.8;
+    }
+    .type-box {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 420px;
     }
     .match {
       margin-top: 18px;
@@ -760,26 +1010,76 @@
       flex-wrap: wrap;
       margin-top: 22px;
     }
-    @media (max-width: 860px) {
-      .result-top { grid-template-columns: 1fr; }
+    @media (max-width: 1180px) {
+      .catalog-band-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
     }
 
-@media (max-width: 860px) {
+    @media (max-width: 860px) {
       .hero-grid,
-      .result-hero,
-      .catalog-grid {
+      .result-hero {
         grid-template-columns: 1fr;
       }
-      .dim-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .result-top {
+        grid-template-columns: 1fr;
+      }
+      .type-box,
+      .poster-box {
+        min-height: 0;
+      }
+      .browse-header,
+      .browse-overview,
+      .catalog-band,
+      .catalog-easter-shell {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+      .catalog-band-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .catalog-easter-grid {
+        grid-template-columns: 1fr;
+      }
+      .catalog-band-watermark,
+      .catalog-easter-watermark {
+        font-size: clamp(58px, 18vw, 112px);
+      }
+      .dim-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
 
     @media (max-width: 600px) {
       .shell { padding: 14px 12px 42px; }
       .hero, .test-wrap, .result-wrap { padding: 16px; }
+      .browse-wrap { padding: 0; }
+      .browse-header {
+        padding: 22px 18px 14px;
+      }
+      .browse-overview,
+      .catalog-band,
+      .catalog-easter-shell {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
       .hero h1 { font-size: 32px; }
       .question-title { font-size: 15px; }
       .dim-grid,
-      .score-grid { grid-template-columns: 1fr; }
+      .score-grid,
+      .catalog-band-grid {
+        grid-template-columns: 1fr;
+      }
+      .band-figure {
+        min-height: 164px;
+      }
+      .catalog-easter-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .catalog-easter-copy p {
+        max-width: none;
+      }
     }
 
     /* ── Browse card images ── */
@@ -803,8 +1103,8 @@
     /* ── Detail page: sidebar + content ── */
     .detail-layout {
       display: grid;
-      grid-template-columns: 210px 1fr;
-      gap: 22px;
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: 32px;
       align-items: start;
     }
     .detail-sidebar {
@@ -846,7 +1146,10 @@
       color: var(--accent-strong);
       border-color: var(--line);
     }
-    .detail-content { min-width: 0; }
+    .detail-content {
+      min-width: 0;
+      width: 100%;
+    }
 
     /* ── Mobile pill nav ── */
     .detail-pills {
@@ -887,6 +1190,7 @@
       border-radius: 18px;
       padding: 24px;
       background: linear-gradient(180deg, #ffffff, #fbfdfb);
+      width: 100%;
     }
     .relation-section h2 {
       font-size: 20px;
@@ -923,17 +1227,19 @@
     }
     .relation-sub + .relation-sub { margin-top: 20px; }
 
-    .section-anchor { scroll-margin-top: 24px; }
+    .section-anchor {
+      scroll-margin-top: 24px;
+      min-width: 0;
+      width: 100%;
+    }
 
     @media (max-width: 860px) {
       .detail-layout { grid-template-columns: 1fr; }
       .detail-sidebar { display: none; }
       .detail-pills { display: flex; }
-      .catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 600px) {
-      .catalog-grid { grid-template-columns: 1fr; }
-      .catalog-card-img { height: 120px; }
+      .detail-pills { margin-bottom: 14px; }
     }
   </style>
 </head>
@@ -974,17 +1280,18 @@
             <button id="browseStartBtn" class="btn-primary"></button>
           </div>
         </div>
-
-        <div class="catalog-section">
-          <h3 id="browseMainTitle"></h3>
+        <div class="browse-overview">
+          <div id="browseMainTitle" class="browse-overview-badge"></div>
           <p id="browseMainSub"></p>
-          <div id="browseMainGrid" class="catalog-grid"></div>
         </div>
-
-        <div class="catalog-section">
-          <h3 id="browseEasterTitle"></h3>
-          <p id="browseEasterSub"></p>
-          <div id="browseEasterGrid" class="catalog-grid"></div>
+        <div id="browseMainGrid" class="catalog-bands"></div>
+        <div class="catalog-easter-shell">
+          <div class="catalog-easter-head">
+            <div class="catalog-easter-watermark">GLITCH</div>
+            <h3 id="browseEasterTitle"></h3>
+            <p id="browseEasterSub"></p>
+          </div>
+          <div id="browseEasterGrid" class="catalog-easter-grid"></div>
         </div>
       </div>
     </section>
@@ -1232,6 +1539,48 @@
   }
 ];
     const EASTER_EGG_TYPES = ['HHHH', 'DRUNK'];
+    const BROWSE_GROUPS = [
+      {
+        watermark: 'CONTROL',
+        title: '控场派',
+        kicker: '不抓方向盘就开始浑身难受',
+        desc: '嘴上像在提建议，实际已经把场子接过去了。你这边还在想，ta那边连流程、预算和情绪都替你排完了。',
+        theme: 'plum',
+        codes: ['CTRL', 'ATM-er', 'BOSS', 'GOGO', 'THIN-K']
+      },
+      {
+        watermark: 'DRAMA',
+        title: '关系病',
+        kicker: '想被爱，也想把爱演成连续剧',
+        desc: '一边想被懂，一边把关系过成连续剧。聊天记录像病历，情绪起伏像天气预报，天天都有新剧情。',
+        theme: 'mint',
+        codes: ['THAN-K', 'OH-NO', 'LOVE-R', 'MUM', 'SOLO']
+      },
+      {
+        watermark: 'CIRCUS',
+        title: '节目组',
+        kicker: '人生烂成这样，总得整点效果',
+        desc: '发光、装蒜、发癫、整活，全都能来一点。别人忙着过日子，ta忙着给自己加机位。',
+        theme: 'peach',
+        codes: ['Dior-s', 'SEXY', 'FAKE', 'JOKE-R', 'WOC!']
+      },
+      {
+        watermark: 'AFK',
+        title: '挂机区',
+        kicker: '肉身在线，灵魂下线',
+        desc: '主打一个人还在线，魂先下班。能少动一步算一步，能少受一点罪算一点，世界末日来了也想先睡醒再说。',
+        theme: 'sky',
+        codes: ['ZZZZ', 'MONK', 'POOR', 'DEAD', 'OJBK']
+      },
+      {
+        watermark: 'WRECK',
+        title: '烂命局',
+        kicker: '骂世界，顺手再骂自己',
+        desc: '怒气、废气、丧气搅成一锅，活着像开一台随时会散架的破机器。话是难听了点，但确实比鸡汤像人话。',
+        theme: 'sage',
+        codes: ['SHIT', 'FUCK', 'IMSB', 'IMFW', 'MALO']
+      }
+    ];
     const DIM_EXPLANATIONS = texts.dimExplanations;
     const dimensionOrder = ['S1','S2','S3','E1','E2','E3','A1','A2','A3','Ac1','Ac2','Ac3','So1','So2','So3'];
 
@@ -1322,11 +1671,11 @@
       authorContent.innerHTML = uiText.result.authorParagraphs.map(text => `<p>${text}</p>`).join('');
 
       const detailUI = uiText.detail || {};
-      const navTitle = isPlaceholder(detailUI.navTitle) ? 'Explore' : detailUI.navTitle;
+      const navTitle = isPlaceholder(detailUI.navTitle) ? '这人什么路数' : detailUI.navTitle;
       document.getElementById('detailNavTitle').textContent = navTitle;
-      const navIntro = detailUI.navIntro || 'Introduction';
-      const navRomantic = detailUI.navRomantic || 'ROMANTIC RELATIONSHIPS';
-      const navFriends = detailUI.navFriendships || 'FRIENDSHIPS';
+      const navIntro = detailUI.navIntro || '先看概况';
+      const navRomantic = detailUI.navRomantic || '谈恋爱时';
+      const navFriends = detailUI.navFriendships || '当朋友时';
       document.querySelectorAll('[data-section="section-intro"]').forEach(a => a.textContent = navIntro);
       document.querySelectorAll('[data-section="section-romantic"]').forEach(a => a.textContent = navRomantic);
       document.querySelectorAll('[data-section="section-friends"]').forEach(a => a.textContent = navFriends);
@@ -1362,37 +1711,64 @@
       return app.previewMode ? dimensionMeta[q.dim].name : uiText.question.hiddenMeta;
     }
 
-    function renderCatalogGrid(container, codes) {
-      container.innerHTML = codes.map((code) => {
-        const type = TYPE_LIBRARY[code];
-        const imgSrc = TYPE_IMAGES[code];
-        const imgHtml = imgSrc
-          ? `<img class="catalog-card-img" src="${imgSrc}" alt="${type.code}" onerror="this.style.display='none'" />`
-          : '';
-        return `
-          <article class="catalog-card" data-browse-code="${type.code}">
-            ${imgHtml}
-            <div class="catalog-code">${type.code}</div>
-            <div class="catalog-name">${type.cn}</div>
-            <div class="catalog-intro">${type.intro}</div>
-            <div class="catalog-foot">
-              <span></span>
-              <button class="btn-secondary">${uiText.browse.cardAction}</button>
-            </div>
-          </article>
-        `;
-      }).join('');
-
+    function bindBrowseClicks(container) {
       container.querySelectorAll('[data-browse-code]').forEach((card) => {
-        card.addEventListener('click', () => {
-          openTypeDetail(card.dataset.browseCode);
-        });
+        card.onclick = () => openTypeDetail(card.dataset.browseCode);
       });
     }
 
+    function renderBandType(code) {
+      const type = TYPE_LIBRARY[code];
+      const imgSrc = TYPE_IMAGES[code];
+      const imgHtml = imgSrc
+        ? `<img src="${imgSrc}" alt="${type.code}" onerror="this.style.display='none'" />`
+        : '';
+      return `
+        <article class="band-type" data-browse-code="${type.code}">
+          <div class="band-figure">${imgHtml}</div>
+          <div class="band-name">${type.cn}</div>
+          <div class="band-code">${type.code}</div>
+          <div class="band-intro">${type.intro}</div>
+        </article>
+      `;
+    }
+
+    function renderEasterType(code) {
+      const type = TYPE_LIBRARY[code];
+      const imgSrc = TYPE_IMAGES[code];
+      const imgHtml = imgSrc
+        ? `<img src="${imgSrc}" alt="${type.code}" onerror="this.style.display='none'" />`
+        : '';
+      return `
+        <article class="catalog-easter-card" data-browse-code="${type.code}">
+          <div class="catalog-easter-figure">${imgHtml}</div>
+          <div class="catalog-easter-copy">
+            <span class="catalog-easter-code">${type.code}</span>
+            <h4>${type.cn}</h4>
+            <p>${type.intro}</p>
+          </div>
+        </article>
+      `;
+    }
+
     function renderBrowseCatalog() {
-      renderCatalogGrid(browseMainGrid, NORMAL_TYPES.map(type => type.code));
-      renderCatalogGrid(browseEasterGrid, EASTER_EGG_TYPES);
+      browseMainGrid.innerHTML = BROWSE_GROUPS.map(group => `
+        <section class="catalog-band catalog-band--${group.theme}">
+          <div class="catalog-band-watermark">${group.watermark}</div>
+          <div class="catalog-band-head">
+            <div class="catalog-band-kicker">${group.kicker}</div>
+            <h3>${group.title}</h3>
+            <p>${group.desc}</p>
+          </div>
+          <div class="catalog-band-grid">
+            ${group.codes.map(renderBandType).join('')}
+          </div>
+        </section>
+      `).join('');
+
+      browseEasterGrid.innerHTML = EASTER_EGG_TYPES.map(renderEasterType).join('');
+      bindBrowseClicks(browseMainGrid);
+      bindBrowseClicks(browseEasterGrid);
     }
 
     function renderQuestions() {
@@ -1582,7 +1958,7 @@
       return !text || String(text).trim().startsWith('__GEMINI__');
     }
 
-    function renderRelationSection(container, data) {
+    function renderRelationSection(container, data, displayTitle) {
       const wrapper = container.parentElement;
       if (!data || !data.title || isPlaceholder(data.lead)) {
         wrapper.classList.add('is-hidden');
@@ -1591,7 +1967,7 @@
       }
       wrapper.classList.remove('is-hidden');
       container.innerHTML = `
-        <h2>${data.title}</h2>
+        <h2>${displayTitle || data.title}</h2>
         <p class="relation-lead">${data.lead}</p>
         ${data.callout && !isPlaceholder(data.callout) ? `<div class="relation-callout">${data.callout}</div>` : ''}
         ${(data.sections || []).filter(s => !isPlaceholder(s.body)).map(s => `
@@ -1652,12 +2028,12 @@
       });
 
       allNavLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
+        link.onclick = (e) => {
           e.preventDefault();
           const targetId = link.dataset.section;
           const target = document.getElementById(targetId);
           if (target) target.scrollIntoView({ behavior: 'smooth' });
-        });
+        };
       });
     }
 
@@ -1692,13 +2068,16 @@
         document.getElementById('dimList').innerHTML = '';
       }
 
+      const detailUI = uiText.detail || {};
       const hasRomantic = renderRelationSection(
         document.getElementById('romanticSection'),
-        type.romanticRelationships
+        type.romanticRelationships,
+        detailUI.navRomantic || '谈恋爱时'
       );
       const hasFriends = renderRelationSection(
         document.getElementById('friendsSection'),
-        type.friendships
+        type.friendships,
+        detailUI.navFriendships || '当朋友时'
       );
       updateDetailNav(hasRomantic, hasFriends);
 
