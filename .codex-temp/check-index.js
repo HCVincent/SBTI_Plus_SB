@@ -692,7 +692,7 @@
       compatibilityBox.innerHTML = `
         <div class="compatibility-head">
           <h3>${compatibilityUI.sectionTitle || '最佳匹配'}</h3>
-          <p>${compatibilityUI.sectionSub || '朋友和谈恋爱不是一套算法，别在这儿一把梭。'}</p>
+          <p>${compatibilityUI.sectionSub || '朋友局、恋爱局各有各的翻车法，别拿一把尺子从头量到尾。'}</p>
         </div>
         <div class="compatibility-grid">${cards}</div>
       `;

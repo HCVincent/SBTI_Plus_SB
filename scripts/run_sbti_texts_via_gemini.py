@@ -22,12 +22,14 @@ SECTION_ORDER = [
     "questions",
     "specialQuestions",
     "typeLibrary",
+    "careerPathsText",
     "compatibilityText",
     "dimExplanations",
 ]
 SECTION_BATCH_SIZES = {
     "questions": 6,
     "typeLibrary": 4,
+    "careerPathsText": 4,
     "compatibilityText": 10,
 }
 MAX_RETRIES = 2

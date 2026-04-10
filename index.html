@@ -1258,7 +1258,7 @@
 
     .compatibility-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 16px;
       margin-top: 20px;
     }
@@ -1535,6 +1535,7 @@
           <a href="#section-intro" class="active" data-section="section-intro"></a>
           <a href="#section-romantic" data-section="section-romantic"></a>
           <a href="#section-friends" data-section="section-friends"></a>
+          <a href="#section-career" data-section="section-career"></a>
         </div>
 
         <div class="detail-layout">
@@ -1545,6 +1546,7 @@
                 <li><a href="#section-intro" class="active" data-section="section-intro"></a></li>
                 <li><a href="#section-romantic" data-section="section-romantic"></a></li>
                 <li><a href="#section-friends" data-section="section-friends"></a></li>
+                <li><a href="#section-career" data-section="section-career"></a></li>
               </ul>
             </nav>
           </aside>
@@ -1585,6 +1587,10 @@
                 <div class="relation-section" id="friendsSection"></div>
               </div>
 
+              <div id="section-career" class="section-anchor">
+                <div class="relation-section" id="careerSection"></div>
+              </div>
+
               <div class="note-box" id="noteBox">
                 <h3 id="noteTitle"></h3>
                 <p id="funNote"></p>
@@ -1621,6 +1627,7 @@
     const questions = texts.questions;
     const specialQuestions = texts.specialQuestions;
     const TYPE_LIBRARY = texts.typeLibrary;
+    const CAREER_PATHS_TEXT = texts.careerPathsText || {};
     const COMPATIBILITY_TEXT = texts.compatibilityText || {};
     const TYPE_IMAGES = {
   "IMSB": "./image/IMSB.png",
@@ -1852,6 +1859,32 @@
           So2: '亲密距离感还算合拍',
           So3: '表达方式不至于鸡同鸭讲'
         }
+      },
+      career: {
+        weights: {
+          S1: ['same', 0.8], S2: ['same', 0.7], S3: ['adjacent', 0.5],
+          E1: ['same', 0.5], E2: ['adjacent', 0.5], E3: ['same', 0.9],
+          A1: ['adjacent', 0.8], A2: ['same', 1.2], A3: ['same', 0.8],
+          Ac1: ['adjacent', 1.1], Ac2: ['adjacent', 1.1], Ac3: ['same', 1.2],
+          So1: ['adjacent', 0.9], So2: ['same', 1.0], So3: ['same', 1.0]
+        },
+        reasonLabels: {
+          S1: '压场方式还算合拍',
+          S2: '脑子转弯速度对得上',
+          S3: '想拿的结果差不到哪去',
+          E1: '压力上来不至于互相吓死',
+          E2: '情绪浓度不会互相拖垮',
+          E3: '工作边界感比较像',
+          A1: '看问题的角度能接上',
+          A2: '规矩松紧能谈得拢',
+          A3: '做事意义感差不到离谱',
+          Ac1: '推活节奏能互相带起来',
+          Ac2: '拍板方式不至于互卡',
+          Ac3: '执行手法还算同频',
+          So1: '一个能开口一个能接招',
+          So2: '同事距离拿捏得住',
+          So3: '汇报和吐槽都听得懂'
+        }
       }
     };
     const COMPATIBILITY_SPECIAL_MATCHES = {
@@ -1877,6 +1910,18 @@
           code: 'LOVE-R',
           score: 73,
           topReasons: ['一个借酒发疯一个真情泛滥', '夜里都很会制造情绪高潮', '白天收拾残局时也一样惨']
+        }
+      },
+      career: {
+        HHHH: {
+          code: 'JOKE-R',
+          score: 79,
+          topReasons: ['一个负责傻乐一个负责圆场', '草台班子越烂越能硬撑下去', '正经流程死了你们反而会来劲']
+        },
+        DRUNK: {
+          code: 'WOC!',
+          score: 76,
+          topReasons: ['一个敢现场乱来一个敢当场吼醒', '脏活烂活都能边骂边扛', '场面越塌越容易逼出执行力']
         }
       }
     };
@@ -1973,9 +2018,11 @@
       const navIntro = detailUI.navIntro || '先看概况';
       const navRomantic = detailUI.navRomantic || '谈恋爱时';
       const navFriends = detailUI.navFriendships || '当朋友时';
+      const navCareer = detailUI.navCareerPaths || '一起上班';
       document.querySelectorAll('[data-section="section-intro"]').forEach(a => a.textContent = navIntro);
       document.querySelectorAll('[data-section="section-romantic"]').forEach(a => a.textContent = navRomantic);
       document.querySelectorAll('[data-section="section-friends"]').forEach(a => a.textContent = navFriends);
+      document.querySelectorAll('[data-section="section-career"]').forEach(a => a.textContent = navCareer);
     }
 
     function showScreen(name) {
@@ -2227,36 +2274,57 @@
       return { summary, highlight };
     }
 
+    function getCareerPathsData(typeCode) {
+      const data = CAREER_PATHS_TEXT?.[typeCode];
+      if (!data || isPlaceholder(data.lead)) return null;
+      return data;
+    }
+
     function getCompatibilityFallbackCopy(mode, baseType, matchType) {
       if (mode === 'friendship') {
         return {
-          summary: `${baseType.cn}和${matchType.cn}凑朋友局，基本属于一边犯轴另一边也看得懂。能一起整活，也能一起把场面搞得有点难收。`,
-          highlight: '这对能玩到一块，但也很容易把好日子过得鸡飞狗跳。'
+          summary: `${baseType.cn}?${matchType.cn}?????????????????????????????????????????`,
+          highlight: '????????????????????????'
+        };
+      }
+      if (mode === 'career') {
+        return {
+          summary: `${baseType.cn}?${matchType.cn}???????????????????????????????????????????????`,
+          highlight: '??????????????????????????'
         };
       }
       return {
-        summary: `${baseType.cn}和${matchType.cn}谈恋爱，不是完全不搭，是真容易一边上头一边互相折腾。甜的时候很甜，翻车的时候也不会给彼此留脸。`,
-        highlight: '这对谈起来有火花，炸起来也够把人炸清醒。'
+        summary: `${baseType.cn}?${matchType.cn}???????????????????????????????????????????????`,
+        highlight: '????????????????????'
       };
     }
 
     function renderCompatibilityBox(type) {
       const compatibilityBox = document.getElementById('compatibilityBox');
       const compatibilityUI = uiText.compatibility || {};
-      const cards = ['friendship', 'romantic'].map((mode) => {
+      const modeConfigs = {
+        friendship: {
+          title: compatibilityUI.friendshipTitle || '??????',
+          badge: compatibilityUI.friendshipBadge || '???????'
+        },
+        romantic: {
+          title: compatibilityUI.romanticTitle || '??????',
+          badge: compatibilityUI.romanticBadge || '??????'
+        },
+        career: {
+          title: compatibilityUI.careerTitle || '??????',
+          badge: compatibilityUI.careerBadge || '???????'
+        }
+      };
+
+      const cards = ['friendship', 'romantic', 'career'].map((mode) => {
         const match = computeBestRelationshipMatch(type.code, mode);
         if (!match) return '';
         const matchType = TYPE_LIBRARY[match.code];
         if (!matchType) return '';
-        const modeTitle = mode === 'friendship'
-          ? (compatibilityUI.friendshipTitle || '朋友最佳匹配')
-          : (compatibilityUI.romanticTitle || '恋爱最佳匹配');
-        const badge = mode === 'friendship'
-          ? (compatibilityUI.friendshipBadge || '最适合一起鬼混')
-          : (compatibilityUI.romanticBadge || '最容易谈出事');
         const copy = getRelationshipCopy(mode, type.code, match.code) || getCompatibilityFallbackCopy(mode, type, matchType);
-        const reasonTitle = compatibilityUI.reasonsTitle || '能凑一块的原因';
-        const scoreLabel = compatibilityUI.scoreLabel || '适配度';
+        const reasonTitle = compatibilityUI.reasonsTitle || '???????';
+        const scoreLabel = compatibilityUI.scoreLabel || '???';
         const reasons = (match.topReasons || []).slice(0, 3);
         const imageSrc = getTypeImageSrc(match.code);
         const figureHtml = imageSrc ? `<img src="${imageSrc}" alt="${match.code}" onerror="this.style.display='none'" />` : '';
@@ -2264,8 +2332,8 @@
           <article class="compat-card">
             <div class="compat-card-head">
               <div>
-                <div class="compat-kicker">${modeTitle}</div>
-                <h4>${badge}</h4>
+                <div class="compat-kicker">${modeConfigs[mode].title}</div>
+                <h4>${modeConfigs[mode].badge}</h4>
                 <div class="compat-card-sub">${formatText(uiText.templates.typeName, { code: match.code, cn: matchType.cn })}</div>
               </div>
               <div class="compat-score">
@@ -2304,8 +2372,8 @@
       compatibilityBox.classList.remove('is-hidden');
       compatibilityBox.innerHTML = `
         <div class="compatibility-head">
-          <h3>${compatibilityUI.sectionTitle || '最佳匹配'}</h3>
-          <p>${compatibilityUI.sectionSub || '朋友和谈恋爱不是一套算法，别在这儿一把梭。'}</p>
+          <h3>${compatibilityUI.sectionTitle || '????'}</h3>
+          <p>${compatibilityUI.sectionSub || '???????????????????????????????'}</p>
         </div>
         <div class="compatibility-grid">${cards}</div>
       `;
@@ -2443,8 +2511,8 @@
       return true;
     }
 
-    function updateDetailNav(hasRomantic, hasFriends) {
-      const sectionCount = 1 + (hasRomantic ? 1 : 0) + (hasFriends ? 1 : 0);
+    function updateDetailNav(hasRomantic, hasFriends, hasCareer) {
+      const sectionCount = 1 + (hasRomantic ? 1 : 0) + (hasFriends ? 1 : 0) + (hasCareer ? 1 : 0);
       document.getElementById('detailSidebar').classList.toggle('is-hidden', sectionCount <= 1);
       const pills = document.getElementById('detailPills');
       pills.classList.toggle('is-hidden', sectionCount <= 1);
@@ -2454,6 +2522,9 @@
       });
       document.querySelectorAll('[data-section="section-friends"]').forEach(el => {
         el.style.display = hasFriends ? '' : 'none';
+      });
+      document.querySelectorAll('[data-section="section-career"]').forEach(el => {
+        el.style.display = hasCareer ? '' : 'none';
       });
 
       document.querySelectorAll('.detail-nav a, .detail-pills a').forEach(a => {
@@ -2468,7 +2539,7 @@
     function setupDetailNavObserver() {
       if (detailObserver) detailObserver.disconnect();
 
-      const sectionIds = ['section-intro', 'section-romantic', 'section-friends'];
+      const sectionIds = ['section-intro', 'section-romantic', 'section-friends', 'section-career'];
       const allNavLinks = document.querySelectorAll('.detail-nav a, .detail-pills a');
 
       detailObserver = new IntersectionObserver((entries) => {
@@ -2537,14 +2608,19 @@
       const hasRomantic = renderRelationSection(
         document.getElementById('romanticSection'),
         type.romanticRelationships,
-        detailUI.navRomantic || '谈恋爱时'
+        detailUI.navRomantic || '????'
       );
       const hasFriends = renderRelationSection(
         document.getElementById('friendsSection'),
         type.friendships,
-        detailUI.navFriendships || '当朋友时'
+        detailUI.navFriendships || '????'
       );
-      updateDetailNav(hasRomantic, hasFriends);
+      const hasCareer = renderRelationSection(
+        document.getElementById('careerSection'),
+        getCareerPathsData(type.code),
+        detailUI.navCareerPaths || '????'
+      );
+      updateDetailNav(hasRomantic, hasFriends, hasCareer);
 
       showScreen('result');
       requestAnimationFrame(() => setupDetailNavObserver());
