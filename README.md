@@ -82,3 +82,19 @@ python scripts/run_sbti_texts_via_gemini.py --ground-with-search
 
 - `prompts/sbti_texts_rewrite_system.txt`
 - `prompts/sbti_texts_rewrite_pass.txt`
+## Cloudflare Pages 部署
+
+这个项目是纯静态站，推荐用 Cloudflare Pages：
+
+1. 在 Cloudflare 的 `Workers & Pages` 里选择 `Pages`
+2. 连接 GitHub 仓库 `HCVincent/SBTI_Plus_SB`
+3. 构建配置填写：
+   - `Framework preset`: `None`
+   - `Build command`: `npm run build`
+   - `Build output directory`: `dist`
+   - `Production branch`: `main`
+
+本仓库的 `npm run build` 会把这些文件复制到 `dist/`：
+- `index.html`
+- `data/`
+- `image/`

@@ -1,0 +1,7 @@
+{
+  "name": "sbti-plus-sb",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build-static.mjs"
+  }
+}
