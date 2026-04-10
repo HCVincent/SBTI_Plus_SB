@@ -173,6 +173,7 @@
     .screen.active { display: block; }
 
     .test-wrap,
+    .browse-wrap,
     .result-wrap {
       margin-top: 22px;
       padding: 22px;
@@ -299,6 +300,104 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.7;
+    }
+
+    .browse-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .browse-header h2 {
+      font-size: clamp(28px, 4vw, 40px);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+
+    .browse-sub {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+      max-width: 720px;
+    }
+
+    .catalog-section {
+      margin-top: 24px;
+    }
+
+    .catalog-section h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .catalog-section p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .catalog-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      background: linear-gradient(180deg, #ffffff, #fbfdfb);
+      display: grid;
+      gap: 12px;
+      min-height: 220px;
+    }
+
+    .catalog-code {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--accent-strong);
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .catalog-name {
+      font-size: 22px;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .catalog-intro {
+      color: #304034;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .catalog-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .catalog-foot span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .is-hidden {
+      display: none !important;
     }
 
     .result-hero {
@@ -667,7 +766,8 @@
 
 @media (max-width: 860px) {
       .hero-grid,
-      .result-hero {
+      .result-hero,
+      .catalog-grid {
         grid-template-columns: 1fr;
       }
       .dim-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -690,6 +790,8 @@
         <h1 id="introTitle"></h1>
         <div class="hero-actions hero-actions-single">
           <button id="startBtn" class="btn-primary"></button>
+          <button id="browseBtn" class="btn-secondary"></button>
+          <button id="randomBtn" class="btn-secondary"></button>
         </div>
         <div style="padding-top: 2rem; display: flex; flex-direction: column;">
           <span>
@@ -702,6 +804,33 @@
           <span>
             <span id="introDomainLabel"></span><span id="introDomainValue"></span>
           </span>
+        </div>
+      </div>
+    </section>
+
+    <section id="browse" class="screen">
+      <div class="browse-wrap card">
+        <div class="browse-header">
+          <div>
+            <h2 id="browseTitle"></h2>
+            <p id="browseSub" class="browse-sub"></p>
+          </div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button id="browseBackBtn" class="btn-secondary"></button>
+            <button id="browseStartBtn" class="btn-primary"></button>
+          </div>
+        </div>
+
+        <div class="catalog-section">
+          <h3 id="browseMainTitle"></h3>
+          <p id="browseMainSub"></p>
+          <div id="browseMainGrid" class="catalog-grid"></div>
+        </div>
+
+        <div class="catalog-section">
+          <h3 id="browseEasterTitle"></h3>
+          <p id="browseEasterSub"></p>
+          <div id="browseEasterGrid" class="catalog-grid"></div>
         </div>
       </div>
     </section>
@@ -743,17 +872,17 @@
             </div>
           </div>
 
-          <div class="analysis-box">
+          <div class="analysis-box" id="analysisBox">
             <h3 id="analysisTitle"></h3>
             <p id="resultDesc"></p>
           </div>
 
-          <div class="dim-box">
+          <div class="dim-box" id="dimBox">
             <h3 id="dimTitle"></h3>
             <div id="dimList" class="dim-list"></div>
           </div>
 
-          <div class="note-box">
+          <div class="note-box" id="noteBox">
             <h3 id="noteTitle"></h3>
             <p id="funNote"></p>
           </div>
@@ -767,6 +896,7 @@
         <div class="result-actions">
           <div style="display:flex; gap:12px; flex-wrap:wrap;">
             <button id="restartBtn" class="btn-secondary"></button>
+            <button id="resultBrowseBtn" class="btn-secondary"></button>
             <button id="toTopBtn" class="btn-primary"></button>
           </div>
         </div>
@@ -918,6 +1048,7 @@
     "pattern": "LLH-LHL-LML-LLL-MLL"
   }
 ];
+    const EASTER_EGG_TYPES = ['HHHH', 'DRUNK'];
     const DIM_EXPLANATIONS = texts.dimExplanations;
     const dimensionOrder = ['S1','S2','S3','E1','E2','E3','A1','A2','A3','Ac1','Ac2','Ac3','So1','So2','So3'];
 
@@ -926,19 +1057,25 @@
     const app = {
       shuffledQuestions: [],
       answers: {},
-      previewMode: false
+      previewMode: false,
+      resultViewMode: 'test'
     };
 
     const screens = {
       intro: document.getElementById('intro'),
+      browse: document.getElementById('browse'),
       test: document.getElementById('test'),
       result: document.getElementById('result')
     };
 
     const questionList = document.getElementById('questionList');
+    const browseMainGrid = document.getElementById('browseMainGrid');
+    const browseEasterGrid = document.getElementById('browseEasterGrid');
     const progressBar = document.getElementById('progressBar');
     const progressText = document.getElementById('progressText');
     const submitBtn = document.getElementById('submitBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const resultBrowseBtn = document.getElementById('resultBrowseBtn');
     const testHint = document.getElementById('testHint');
     const posterImage = document.getElementById('posterImage');
     const posterCaption = document.getElementById('posterCaption');
@@ -948,6 +1085,7 @@
     const resultTypeSub = document.getElementById('resultTypeSub');
     const resultDesc = document.getElementById('resultDesc');
     const funNote = document.getElementById('funNote');
+    const dimBox = document.getElementById('dimBox');
     const authorContent = document.getElementById('authorContent');
 
     function formatText(template, values) {
@@ -958,10 +1096,22 @@
       document.title = uiText.pageTitle;
       document.getElementById('introTitle').textContent = uiText.introTitle;
       document.getElementById('startBtn').textContent = uiText.buttons.start;
+      document.getElementById('browseBtn').textContent = uiText.buttons.browseAll;
+      document.getElementById('randomBtn').textContent = uiText.buttons.randomResult;
       document.getElementById('backIntroBtn').textContent = uiText.buttons.backIntro;
       document.getElementById('submitBtn').textContent = uiText.buttons.submit;
-      document.getElementById('restartBtn').textContent = uiText.buttons.restart;
+      restartBtn.textContent = uiText.buttons.restart;
+      resultBrowseBtn.textContent = uiText.buttons.browseAll;
       document.getElementById('toTopBtn').textContent = uiText.buttons.toTop;
+      document.getElementById('browseBackBtn').textContent = uiText.buttons.backIntro;
+      document.getElementById('browseStartBtn').textContent = uiText.buttons.start;
+
+      document.getElementById('browseTitle').textContent = uiText.browse.title;
+      document.getElementById('browseSub').textContent = uiText.browse.sub;
+      document.getElementById('browseMainTitle').textContent = uiText.browse.mainTitle;
+      document.getElementById('browseMainSub').textContent = uiText.browse.mainSub;
+      document.getElementById('browseEasterTitle').textContent = uiText.browse.easterTitle;
+      document.getElementById('browseEasterSub').textContent = uiText.browse.easterSub;
 
       document.getElementById('introAuthorLabel').textContent = uiText.introMeta.authorLabel;
       document.getElementById('introAuthorLink').textContent = uiText.introMeta.authorLinkText;
@@ -1017,6 +1167,33 @@
     function getQuestionMetaLabel(q) {
       if (q.special) return uiText.question.specialMeta;
       return app.previewMode ? dimensionMeta[q.dim].name : uiText.question.hiddenMeta;
+    }
+
+    function renderCatalogGrid(container, codes) {
+      container.innerHTML = codes.map((code) => {
+        const type = TYPE_LIBRARY[code];
+        return `
+          <article class="catalog-card">
+            <div class="catalog-code">${type.code}</div>
+            <div class="catalog-name">${type.cn}</div>
+            <div class="catalog-intro">${type.intro}</div>
+            <div class="catalog-foot">
+              <button class="btn-secondary" data-type-code="${type.code}">${uiText.browse.cardAction}</button>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      container.querySelectorAll('[data-type-code]').forEach((button) => {
+        button.addEventListener('click', () => {
+          openTypeDetail(button.dataset.typeCode);
+        });
+      });
+    }
+
+    function renderBrowseCatalog() {
+      renderCatalogGrid(browseMainGrid, NORMAL_TYPES.map(type => type.code));
+      renderCatalogGrid(browseEasterGrid, EASTER_EGG_TYPES);
     }
 
     function renderQuestions() {
@@ -1192,17 +1369,28 @@
       }).join('');
     }
 
-    function renderResult() {
-      const result = computeResult();
-      const type = result.finalType;
+    function setResultMode(mode) {
+      app.resultViewMode = mode;
+      restartBtn.textContent = mode === 'browse'
+        ? uiText.buttons.start
+        : uiText.buttons.restart;
+      resultBrowseBtn.textContent = mode === 'browse'
+        ? uiText.buttons.backBrowse
+        : uiText.buttons.browseAll;
+    }
 
-      resultModeKicker.textContent = result.modeKicker;
+    function renderTypeDetail({ type, modeKicker, badge, sub, note, showMatch, showDims, result, mode }) {
+      setResultMode(mode);
+
+      resultModeKicker.textContent = modeKicker;
       resultTypeName.textContent = formatText(uiText.templates.typeName, { code: type.code, cn: type.cn });
-      matchBadge.textContent = result.badge;
-      resultTypeSub.textContent = result.sub;
+      matchBadge.textContent = badge || '';
+      resultTypeSub.textContent = sub;
       resultDesc.textContent = type.desc;
       posterCaption.textContent = type.intro;
-      funNote.textContent = result.special ? uiText.notes.special : uiText.notes.normal;
+      funNote.textContent = note;
+      matchBadge.classList.toggle('is-hidden', !showMatch);
+      dimBox.classList.toggle('is-hidden', !showDims);
 
       const posterBox = document.getElementById('posterBox');
       const imageSrc = TYPE_IMAGES[type.code];
@@ -1216,8 +1404,85 @@
         posterBox.classList.add('no-image');
       }
 
-      renderDimList(result);
+      if (showDims && result) {
+        renderDimList(result);
+      } else {
+        document.getElementById('dimList').innerHTML = '';
+      }
       showScreen('result');
+    }
+
+    function renderResult(source = 'test') {
+      const result = computeResult();
+      const type = result.finalType;
+      const isRandom = source === 'random';
+
+      const modeKicker = isRandom
+        ? formatText(uiText.resultStates.random.modeKickerTemplate, { mode: result.modeKicker })
+        : result.modeKicker;
+      const sub = isRandom
+        ? formatText(uiText.resultStates.random.subTemplate, { base: result.sub })
+        : result.sub;
+      const note = isRandom
+        ? uiText.notes.random
+        : (result.special ? uiText.notes.special : uiText.notes.normal);
+
+      renderTypeDetail({
+        type,
+        modeKicker,
+        badge: result.badge,
+        sub,
+        note,
+        showMatch: true,
+        showDims: true,
+        result,
+        mode: isRandom ? 'random' : 'test'
+      });
+    }
+
+    function openTypeDetail(code) {
+      const type = TYPE_LIBRARY[code];
+      if (!type) return;
+      renderTypeDetail({
+        type,
+        modeKicker: uiText.browse.detailKicker,
+        badge: '',
+        sub: uiText.browse.detailSub,
+        note: uiText.browse.detailNote,
+        showMatch: false,
+        showDims: false,
+        result: null,
+        mode: 'browse'
+      });
+    }
+
+    function getRandomOptionValue(question) {
+      const options = question.options || [];
+      const picked = options[Math.floor(Math.random() * options.length)];
+      return picked ? picked.value : undefined;
+    }
+
+    function generateRandomAnswers() {
+      const answers = {};
+      questions.forEach((question) => {
+        answers[question.id] = getRandomOptionValue(question);
+      });
+
+      const gateQuestion = specialQuestions[0];
+      answers[gateQuestion.id] = getRandomOptionValue(gateQuestion);
+
+      if (answers[gateQuestion.id] === 3) {
+        answers[specialQuestions[1].id] = getRandomOptionValue(specialQuestions[1]);
+      }
+
+      return answers;
+    }
+
+    function startRandomResult() {
+      app.previewMode = false;
+      app.shuffledQuestions = [];
+      app.answers = generateRandomAnswers();
+      renderResult('random');
     }
 
     function startTest(preview = false) {
@@ -1235,10 +1500,22 @@
     }
 
     applyStaticTexts();
+    renderBrowseCatalog();
     document.getElementById('startBtn').addEventListener('click', () => startTest(false));
+    document.getElementById('browseBtn').addEventListener('click', () => {
+      renderBrowseCatalog();
+      showScreen('browse');
+    });
+    document.getElementById('randomBtn').addEventListener('click', startRandomResult);
+    document.getElementById('browseBackBtn').addEventListener('click', () => showScreen('intro'));
+    document.getElementById('browseStartBtn').addEventListener('click', () => startTest(false));
     document.getElementById('backIntroBtn').addEventListener('click', () => showScreen('intro'));
-    document.getElementById('submitBtn').addEventListener('click', renderResult);
+    document.getElementById('submitBtn').addEventListener('click', () => renderResult('test'));
     document.getElementById('restartBtn').addEventListener('click', () => startTest(false));
+    document.getElementById('resultBrowseBtn').addEventListener('click', () => {
+      renderBrowseCatalog();
+      showScreen('browse');
+    });
     document.getElementById('toTopBtn').addEventListener('click', () => showScreen('intro'));
   </script>
 

@@ -1,16 +1,12 @@
-下面是原始资源文件：
+Below is the original source block:
 {source_text}
 
-下面是第一版重写草稿：
+Below is the first-pass draft:
 {draft_text}
 
-请你做第二轮总编式重写，重点修正这些问题：
-1. 有些句子可能还太平、太像 AI，总结味过重。
-2. 有些梗可能不够自然，像是“知道用户想要有梗，于是机械地放梗”。
-3. 某些按钮、提示语、维度说明，可能还没有完全接入题干和人格描述的语言宇宙。
-4. 允许删掉废话、收紧句子、补更准确的攻击点和更具体的生活感。
-
-再次强调：
-1. 只输出最终 JS 文件，不要解释。
-2. 不要改 key 名、数组长度、id、code、value。
-3. 必须输出完整文件，不能只输出局部 diff。
+Revise the draft with these rules:
+1. Only placeholder string values may differ from the original source block.
+2. Any existing non-placeholder text must remain unchanged.
+3. Tighten the new copy so it matches the existing SBTI voice more closely: sharp, funny, bleak, a bit rude, but still natural.
+4. Remove obvious AI wording, dead phrasing, and fake punchlines.
+5. Output exactly one JavaScript property block, not a full file, and do not explain anything.

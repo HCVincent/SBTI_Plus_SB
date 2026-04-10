@@ -14,6 +14,7 @@ from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MODEL = "gemini-3.1-flash-lite-preview"
+DEFAULT_PLACEHOLDER_TOKEN = "__GEMINI__"
 SECTION_ORDER = [
     "ui",
     "dimensionMeta",
@@ -312,6 +313,86 @@ def merge_section_batches(*, section_name: str, generated_blocks: list[str]) -> 
     return assemble_property_entries(section_name=section_name, kind=merged_kind or "array", entries=merged_entries)
 
 
+def tokenize_js_like(text: str) -> list[tuple[str, str]]:
+    tokens: list[tuple[str, str]] = []
+    quote_char: str | None = None
+    escaped = False
+    literal_chars: list[str] = []
+
+    for char in text:
+        if quote_char is not None:
+            if escaped:
+                literal_chars.append(char)
+                escaped = False
+                continue
+            if char == "\\":
+                literal_chars.append(char)
+                escaped = True
+                continue
+            if char == quote_char:
+                literal = "".join(literal_chars)
+                tokens.append(("str", f"{quote_char}{literal}{quote_char}"))
+                quote_char = None
+                literal_chars = []
+                continue
+            literal_chars.append(char)
+            continue
+
+        if char in {"'", '"'}:
+            quote_char = char
+            literal_chars = []
+            continue
+        if char.isspace():
+            continue
+        tokens.append(("sym", char))
+
+    if quote_char is not None:
+        raise ValueError("Unterminated string literal while tokenizing block.")
+
+    return tokens
+
+
+def block_has_placeholder(block: str, *, placeholder_token: str) -> bool:
+    return placeholder_token in block
+
+
+def assert_locked_text_preserved(
+    *,
+    source_block: str,
+    generated_block: str,
+    placeholder_token: str,
+    label: str,
+) -> None:
+    if placeholder_token in generated_block:
+        raise RuntimeError(f"{label} still contains placeholder token {placeholder_token!r}.")
+
+    source_tokens = tokenize_js_like(source_block)
+    generated_tokens = tokenize_js_like(generated_block)
+
+    if len(source_tokens) != len(generated_tokens):
+        raise RuntimeError(
+            f"{label} changed the structure of the block. "
+            "Only placeholder strings are allowed to change."
+        )
+
+    for index, ((source_kind, source_value), (generated_kind, generated_value)) in enumerate(
+        zip(source_tokens, generated_tokens),
+        start=1,
+    ):
+        if source_kind != generated_kind:
+            raise RuntimeError(
+                f"{label} changed the block structure near token {index}. "
+                "Only placeholder strings are allowed to change."
+            )
+        if source_kind == "str" and placeholder_token in source_value:
+            continue
+        if source_value != generated_value:
+            raise RuntimeError(
+                f"{label} changed locked text outside placeholder values near token {index}. "
+                "Only placeholder strings are allowed to change."
+            )
+
+
 def assemble_sections(sections: dict[str, str]) -> str:
     ordered_blocks = []
     for key in SECTION_ORDER:
@@ -405,19 +486,27 @@ def build_section_rewrite_prompt(
     )
 
 
-def build_section_draft_prompt_v2(*, section_name: str, source_block: str, batch_note: str = "") -> str:
+def build_section_draft_prompt_v2(
+    *,
+    section_name: str,
+    source_block: str,
+    placeholder_token: str,
+    batch_note: str = "",
+) -> str:
     note = batch_note or (
-        "Only rewrite the entries shown in this prompt. Do not add, remove, reorder, or merge entries."
+        "Only replace placeholder string values in this block. Do not add, remove, reorder, or merge entries."
     )
     return (
-        f"Rewrite only the `{section_name}` section from this SBTI text resource.\n"
+        f"Fill only the new-copy placeholders inside the `{section_name}` section of this SBTI text resource.\n"
         "Requirements:\n"
-        "1. Change only user-visible copy.\n"
-        "2. Do not change key names, object nesting, array length, question ids, type codes, option values, or image paths.\n"
-        "3. Keep the original voice: internet-native, funny, bleak, a little mean, but still readable and natural.\n"
-        "4. Output exactly one JavaScript property block starting with the original section name.\n"
-        "5. Do not output a full file. Do not output Markdown fences. Do not explain anything.\n"
-        f"6. {note}\n\n"
+        f"1. Only replace string values that contain the placeholder token `{placeholder_token}`.\n"
+        "2. Every non-placeholder string must stay unchanged.\n"
+        "3. Do not change key names, object nesting, array length, question ids, type codes, option values, or image paths.\n"
+        "4. Keep the existing voice: internet-native, funny, bleak, a little mean, but still readable and natural.\n"
+        "5. Each placeholder string may contain a short instruction after the token. Use it to write the final user-facing Chinese copy.\n"
+        "6. Output exactly one JavaScript property block starting with the original section name.\n"
+        "7. Do not output a full file. Do not output Markdown fences. Do not explain anything.\n"
+        f"8. {note}\n\n"
         "Source block:\n"
         f"{source_block}"
     )
@@ -429,14 +518,17 @@ def build_section_rewrite_prompt_v2(
     source_block: str,
     draft_block: str,
     rewrite_template: str,
+    placeholder_token: str,
     batch_note: str = "",
 ) -> str:
     note = batch_note or (
-        "Only rewrite the entries shown in this prompt. Do not add, remove, reorder, or merge entries."
+        "Only replace placeholder string values in this block. Do not add, remove, reorder, or merge entries."
     )
     prompt = rewrite_template.replace("{source_text}", source_block).replace("{draft_text}", draft_block)
     return (
         f"You may only work on the `{section_name}` section.\n"
+        f"Only placeholder string values containing `{placeholder_token}` may change.\n"
+        "All existing non-placeholder strings are locked and must remain unchanged.\n"
         "Output exactly one JavaScript property block starting with the original section name.\n"
         "Do not output a full file. Do not explain anything.\n"
         f"{note}\n\n"
@@ -457,7 +549,7 @@ def call_with_retries(*, label: str, fn):
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Rewrite SBTI text resources via Gemini.")
+    parser = argparse.ArgumentParser(description="Fill new SBTI placeholder texts via Gemini.")
     parser.add_argument(
         "--input",
         default=str(PROJECT_ROOT / "data" / "sbti-texts.js"),
@@ -488,6 +580,11 @@ def main() -> int:
         default=None,
         help="Override Gemini model name for this run.",
     )
+    parser.add_argument(
+        "--placeholder-token",
+        default=DEFAULT_PLACEHOLDER_TOKEN,
+        help="Only string values containing this token will be sent to Gemini for filling.",
+    )
     args = parser.parse_args()
 
     load_local_env(PROJECT_ROOT / ".env")
@@ -500,8 +597,10 @@ def main() -> int:
     if not input_path.exists():
         raise RuntimeError(f"Input file not found: {input_path}")
 
-    api_key = ensure_api_key()
     model_name = str(args.model or resolve_model_name()).strip()
+    placeholder_token = str(args.placeholder_token or "").strip()
+    if not placeholder_token:
+        raise RuntimeError("Placeholder token cannot be empty.")
     source_text = input_path.read_text(encoding="utf-8")
     system_prompt, rewrite_template = load_prompts(
         system_prompt_path=system_prompt_path,
@@ -513,15 +612,35 @@ def main() -> int:
     if missing_sections:
         raise RuntimeError(f"Input file is missing sections: {', '.join(missing_sections)}")
 
+    prepared_sections: list[tuple[str, list[str]]] = []
+    placeholder_batches = 0
+    for section_name in SECTION_ORDER:
+        source_batches = build_section_batches(section_name=section_name, source_block=source_sections[section_name])
+        prepared_sections.append((section_name, source_batches))
+        placeholder_batches += sum(
+            1 for block in source_batches
+            if block_has_placeholder(block, placeholder_token=placeholder_token)
+        )
+
+    if placeholder_batches == 0:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_bytes(input_path.read_bytes())
+        print(
+            f"No placeholder token {placeholder_token!r} found. "
+            f"Copied input unchanged to: {output_path}"
+        )
+        return 0
+
+    api_key = ensure_api_key()
     client = GeminiClient(api_key=api_key, model_name=model_name)
     print(f"[preflight] model={model_name}")
     client.preflight()
     print("[preflight] ok")
+    print(f"[plan] placeholder batches={placeholder_batches}, token={placeholder_token}")
 
     generated_sections: dict[str, str] = {}
     total = len(SECTION_ORDER)
-    for index, section_name in enumerate(SECTION_ORDER, start=1):
-        source_batches = build_section_batches(section_name=section_name, source_block=source_sections[section_name])
+    for index, (section_name, source_batches) in enumerate(prepared_sections, start=1):
         generated_batches: list[str] = []
 
         for batch_index, source_block in enumerate(source_batches, start=1):
@@ -531,13 +650,19 @@ def main() -> int:
                 batch_suffix = f" batch {batch_index}/{len(source_batches)}"
                 batch_note = (
                     f"This is only batch {batch_index}/{len(source_batches)} of the `{section_name}` section. "
-                    "Only rewrite the entries shown here, and keep the same count and order."
+                    "Only fill placeholders in the entries shown here, and keep the same count and order."
                 )
+
+            if not block_has_placeholder(source_block, placeholder_token=placeholder_token):
+                generated_batches.append(normalize_property_block(source_block))
+                print(f"[{index}/{total}] {section_name}{batch_suffix} locked (no placeholders)")
+                continue
 
             print(f"[{index}/{total}] drafting {section_name}{batch_suffix} ...")
             draft_prompt = build_section_draft_prompt_v2(
                 section_name=section_name,
                 source_block=source_block,
+                placeholder_token=placeholder_token,
                 batch_note=batch_note,
             )
             draft_block = call_with_retries(
@@ -546,6 +671,12 @@ def main() -> int:
                     section_name=section_name,
                     text=client.generate_text(system_prompt=system_prompt, user_prompt=prompt),
                 ),
+            )
+            assert_locked_text_preserved(
+                source_block=source_block,
+                generated_block=draft_block,
+                placeholder_token=placeholder_token,
+                label=f"{section_name}{batch_suffix} draft",
             )
 
             if args.single_pass:
@@ -559,6 +690,7 @@ def main() -> int:
                 source_block=source_block,
                 draft_block=draft_block,
                 rewrite_template=rewrite_template,
+                placeholder_token=placeholder_token,
                 batch_note=batch_note,
             )
             final_block = call_with_retries(
@@ -567,6 +699,12 @@ def main() -> int:
                     section_name=section_name,
                     text=client.generate_text(system_prompt=system_prompt, user_prompt=prompt),
                 ),
+            )
+            assert_locked_text_preserved(
+                source_block=source_block,
+                generated_block=final_block,
+                placeholder_token=placeholder_token,
+                label=f"{section_name}{batch_suffix} polish",
             )
             generated_batches.append(final_block)
             print(f"[{index}/{total}] {section_name}{batch_suffix} ok")
